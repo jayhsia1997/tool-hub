@@ -1,18 +1,43 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import {
+  loadAppliedCountdown,
+  saveAppliedCountdown,
+} from "./countdownStorage";
+import {
   formatRemaining,
+  formatTimeInputValue,
   remainingMilliseconds,
   validateTargetTime,
   type AppliedCountdown,
 } from "./countdownTime";
 
+function initialFormState() {
+  const stored = loadAppliedCountdown();
+  if (!stored) {
+    return {
+      title: "",
+      targetTimeInput: "",
+      completionMessage: "",
+      applied: null as AppliedCountdown | null,
+    };
+  }
+
+  return {
+    title: stored.title,
+    targetTimeInput: formatTimeInputValue(stored.targetTime),
+    completionMessage: stored.completionMessage,
+    applied: stored,
+  };
+}
+
 export function CountdownTimerPage() {
-  const [title, setTitle] = useState("");
-  const [targetTimeInput, setTargetTimeInput] = useState("");
-  const [completionMessage, setCompletionMessage] = useState("");
+  const [initial] = useState(initialFormState);
+  const [title, setTitle] = useState(initial.title);
+  const [targetTimeInput, setTargetTimeInput] = useState(initial.targetTimeInput);
+  const [completionMessage, setCompletionMessage] = useState(initial.completionMessage);
   const [error, setError] = useState<string | null>(null);
-  const [applied, setApplied] = useState<AppliedCountdown | null>(null);
+  const [applied, setApplied] = useState<AppliedCountdown | null>(initial.applied);
   const [now, setNow] = useState(() => new Date());
   const [isProjecting, setIsProjecting] = useState(false);
   const [showReturnControl, setShowReturnControl] = useState(false);
@@ -71,11 +96,13 @@ export function CountdownTimerPage() {
       return;
     }
     setError(null);
-    setApplied({
+    const nextApplied: AppliedCountdown = {
       title: title.trim(),
       targetTime: result.target,
       completionMessage: completionMessage.trim(),
-    });
+    };
+    setApplied(nextApplied);
+    saveAppliedCountdown(nextApplied);
     setNow(new Date());
   }
 
