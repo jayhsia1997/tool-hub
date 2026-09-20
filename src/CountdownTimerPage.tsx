@@ -1,13 +1,13 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { CircleProgress } from "@/components/ui/circle-progress";
+import { SlidingNumber } from "@/components/ui/sliding-number";
+import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import {
-  loadAppliedCountdown,
-  saveAppliedCountdown,
-} from "./countdownStorage";
+import { clearAppliedCountdown, loadAppliedCountdown, saveAppliedCountdown } from "./countdownStorage";
 import {
   formatRemaining,
   formatTimeInputValue,
   remainingMilliseconds,
+  remainingParts,
   validateTargetTime,
   type AppliedCountdown,
 } from "./countdownTime";
@@ -31,6 +31,12 @@ function initialFormState() {
   };
 }
 
+function progressColor(percentage: number) {
+  if (percentage > 0.66) return "stroke-emerald-500";
+  if (percentage > 0.33) return "stroke-amber-500";
+  return "stroke-rose-500";
+}
+
 export function CountdownTimerPage() {
   const [initial] = useState(initialFormState);
   const [title, setTitle] = useState(initial.title);
@@ -41,6 +47,7 @@ export function CountdownTimerPage() {
   const [now, setNow] = useState(() => new Date());
   const [isProjecting, setIsProjecting] = useState(false);
   const [showReturnControl, setShowReturnControl] = useState(false);
+  const [viewportTick, setViewportTick] = useState(0);
 
   useEffect(() => {
     if (!applied) {
@@ -71,6 +78,19 @@ export function CountdownTimerPage() {
       return;
     }
 
+    function handleResize() {
+      setViewportTick((tick) => tick + 1);
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isProjecting]);
+
+  useEffect(() => {
+    if (!isProjecting) {
+      return;
+    }
+
     let hideTimer: number | undefined;
 
     function handleMouseMove() {
@@ -90,7 +110,8 @@ export function CountdownTimerPage() {
 
   function handleApply(event: FormEvent) {
     event.preventDefault();
-    const result = validateTargetTime(targetTimeInput, new Date());
+    const applyNow = new Date();
+    const result = validateTargetTime(targetTimeInput, applyNow);
     if (!result.ok) {
       setError(result.message);
       return;
@@ -100,10 +121,20 @@ export function CountdownTimerPage() {
       title: title.trim(),
       targetTime: result.target,
       completionMessage: completionMessage.trim(),
+      initialDurationMs: result.target.getTime() - applyNow.getTime(),
     };
     setApplied(nextApplied);
     saveAppliedCountdown(nextApplied);
-    setNow(new Date());
+    setNow(applyNow);
+  }
+
+  function handleCancel() {
+    setTitle("");
+    setTargetTimeInput("");
+    setCompletionMessage("");
+    setError(null);
+    setApplied(null);
+    clearAppliedCountdown();
   }
 
   async function handleEnterFullscreen() {
@@ -118,8 +149,12 @@ export function CountdownTimerPage() {
 
   const remainingMs = applied ? remainingMilliseconds(applied.targetTime, now) : null;
   const isComplete = remainingMs === 0;
-  const showCompletionMessage =
-    isComplete && applied !== null && applied.completionMessage.length > 0;
+  const showCompletionMessage = isComplete && applied !== null && applied.completionMessage.length > 0;
+  const headingText = showCompletionMessage ? applied.completionMessage : applied?.title ? applied.title : null;
+  const parts = remainingMs !== null ? remainingParts(remainingMs) : null;
+  void viewportTick;
+  const circleSize = isProjecting ? Math.max(280, Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.58)) : 200;
+  const strokeWidth = isProjecting ? Math.max(12, Math.round(circleSize * 0.035)) : 8;
 
   return (
     <main className={isProjecting ? "countdown-page projecting" : "countdown-page"}>
@@ -174,20 +209,52 @@ export function CountdownTimerPage() {
             ) : null}
 
             <button type="submit">Apply</button>
+            {applied ? (
+              <button type="button" onClick={handleCancel}>
+                Cancel countdown
+              </button>
+            ) : null}
           </form>
         </>
       ) : null}
 
-      {applied ? (
+      {applied && remainingMs !== null && parts !== null ? (
         <section className="countdown-display" aria-label="Countdown display">
-          {applied.title ? <h2 className="countdown-title">{applied.title}</h2> : null}
-          {showCompletionMessage ? (
-            <p className="completion-message">{applied.completionMessage}</p>
-          ) : (
-            <p className="countdown-digits" role="timer" aria-live="polite">
-              {formatRemaining(remainingMs ?? 0)}
-            </p>
-          )}
+          {headingText ? (
+            <h2 className={showCompletionMessage ? "countdown-title countdown-completion-title" : "countdown-title"}>{headingText}</h2>
+          ) : null}
+          <div
+            className="countdown-circle"
+            style={
+              {
+                "--circle-size": `${circleSize}px`,
+                "--circle-stroke": `${strokeWidth}px`,
+              } as CSSProperties
+            }
+          >
+            <CircleProgress
+              value={remainingMs}
+              maxValue={applied.initialDurationMs}
+              size={circleSize}
+              strokeWidth={strokeWidth}
+              counterClockwise
+              disableAnimation
+              getColor={progressColor}
+              className="countdown-circle-progress"
+            />
+            <div className="countdown-circle-center">
+              <div className="countdown-digits" role="timer" aria-live="polite">
+                <span className="sr-only">{formatRemaining(remainingMs)}</span>
+                <div className="countdown-digits-face" aria-hidden="true">
+                  <SlidingNumber value={parts.hours} padStart />
+                  <span className="countdown-digits-separator">:</span>
+                  <SlidingNumber value={parts.minutes} padStart />
+                  <span className="countdown-digits-separator">:</span>
+                  <SlidingNumber value={parts.seconds} padStart />
+                </div>
+              </div>
+            </div>
+          </div>
           {!isProjecting ? (
             <button type="button" onClick={handleEnterFullscreen}>
               Enter fullscreen
