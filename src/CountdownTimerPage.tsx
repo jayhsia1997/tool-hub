@@ -37,6 +37,19 @@ function progressColor(percentage: number) {
   return "stroke-rose-500";
 }
 
+/** Size the projection ring so a multi-line title above it still fits in the viewport. */
+function projectingCircleSize(viewportWidth: number, viewportHeight: number, hasHeading: boolean) {
+  const preferred = Math.max(280, Math.floor(Math.min(viewportWidth, viewportHeight) * 0.58));
+  if (!hasHeading) {
+    return preferred;
+  }
+  const topPad = Math.max(40, Math.floor(viewportHeight * 0.07));
+  const bottomPad = Math.max(24, Math.floor(viewportHeight * 0.04));
+  const titleReserve = Math.max(Math.floor(viewportHeight * 0.28), topPad + 120);
+  const available = viewportHeight - titleReserve - bottomPad;
+  return Math.max(200, Math.min(preferred, available));
+}
+
 type RemainingParts = ReturnType<typeof remainingParts>;
 
 type CountdownReadoutProps = {
@@ -217,7 +230,9 @@ export function CountdownTimerPage() {
   const headingText = showCompletionMessage ? applied.completionMessage : applied?.title ? applied.title : null;
   const parts = remainingMs !== null ? remainingParts(remainingMs) : null;
   void viewportTick;
-  const circleSize = isProjecting ? Math.max(280, Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.58)) : 200;
+  const circleSize = isProjecting
+    ? projectingCircleSize(window.innerWidth, window.innerHeight, headingText != null)
+    : 200;
   const strokeWidth = isProjecting ? Math.max(12, Math.round(circleSize * 0.035)) : 8;
 
   const activeReadout =

@@ -576,25 +576,38 @@
   border-radius: 0;
   padding: 0;
   position: relative;
-  justify-content: center;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  justify-items: center;
+  align-items: center;
   gap: 0;
   overflow: hidden;
 }
 
 .countdown-page.projecting .countdown-title {
-  position: absolute;
-  top: max(2.5rem, 7vh);
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin: max(2.5rem, 7vh) 1rem 0.75rem;
   width: min(92vw, 48rem);
-  font-size: clamp(2.75rem, 7vw, 5rem);
+  max-width: min(92vw, 48rem);
+  font-size: clamp(2rem, 5.5vw, 4.5rem);
   font-weight: 600;
+  line-height: 1.15;
   z-index: 1;
+  justify-self: center;
+  align-self: start;
+}
+
+.countdown-page.projecting .countdown-circle {
+  grid-row: 2;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .countdown-page.projecting .countdown-completion-title {
-  font-size: clamp(2rem, 5.5vw, 4rem);
+  font-size: clamp(1.75rem, 4.5vw, 3.5rem);
 }
 
 .countdown-page.projecting .countdown-display button {
