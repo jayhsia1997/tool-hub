@@ -25,7 +25,7 @@
   --countdown-sans: "Segoe UI", system-ui, sans-serif;
   --countdown-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
 
-  /* Legacy aliases for countdown settings until #10 restyles them */
+  /* Legacy aliases kept for remaining shared chrome styles */
   --text: var(--text-secondary);
   --text-h: var(--text-primary);
   --bg: var(--canvas);
