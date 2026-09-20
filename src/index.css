@@ -1,41 +1,61 @@
 @import "tailwindcss";
 
 :root {
-  --text: #4a5568;
-  --text-h: #1a202c;
-  --bg: #f7fafc;
-  --border: #e2e8f0;
-  --surface: #ffffff;
+  /* Approved chrome palette (#9) — reusable for settings (#10) */
+  --canvas: #111111;
+  --surface-inset: #141414;
+  --surface-card: #181818;
+  --surface-raised: #1e1e1e;
+  --text-primary: #f4f1ea;
+  --text-secondary: #8e8a82;
+  --accent: #b89b5e;
+  --border-subtle: #2a2a2a;
+  --border-strong: #333333;
+  --border-divider: #262626;
+  --danger: #ba1a1a;
+
+  --font-sans-family: "Geist", "Segoe UI", system-ui, sans-serif;
+  --font-mono-family: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+  --font-sans: var(--font-sans-family);
+  --font-mono: var(--font-mono-family);
+
+  /* Projection tokens — isolated from chrome fonts/palette */
   --countdown-bg: #0f1419;
   --countdown-fg: #ffffff;
-  --danger: #c53030;
+  --countdown-sans: "Segoe UI", system-ui, sans-serif;
+  --countdown-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
 
-  --sans: "Segoe UI", system-ui, sans-serif;
-  --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  /* Legacy aliases for countdown settings until #10 restyles them */
+  --text: var(--text-secondary);
+  --text-h: var(--text-primary);
+  --bg: var(--canvas);
+  --border: var(--border-subtle);
+  --surface: var(--surface-card);
+  --sans: var(--font-sans);
+  --mono: var(--font-mono);
 
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #171717;
-  --primary-foreground: #fafafa;
-  --secondary: #f5f5f5;
-  --secondary-foreground: #171717;
-  --muted: #f5f5f5;
-  --muted-foreground: #737373;
-  --accent: #f5f5f5;
-  --accent-foreground: #171717;
-  --destructive: #e7000b;
+  --background: var(--canvas);
+  --foreground: var(--text-primary);
+  --card: var(--surface-card);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--text-primary);
+  --primary-foreground: var(--canvas);
+  --secondary: var(--surface-raised);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-raised);
+  --muted-foreground: var(--text-secondary);
+  --accent-foreground: var(--canvas);
+  --destructive: var(--danger);
   --destructive-foreground: #fafafa;
-  --input: #e5e5e5;
-  --ring: #a1a1a1;
+  --input: var(--border-subtle);
+  --ring: color-mix(in srgb, var(--accent) 60%, transparent);
   --radius: 0.5rem;
 
-  font: 18px/145% var(--sans);
-  color: var(--text);
-  background: var(--bg);
+  font: 16px/1.5 var(--font-sans);
+  color: var(--text-primary);
+  background: var(--canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -62,31 +82,38 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-border: var(--border);
+  --font-sans: var(--font-sans-family);
+  --font-mono: var(--font-mono-family);
   --radius-lg: var(--radius);
 }
 
 #root {
   width: 100%;
-  max-width: 56rem;
-  margin: 0 auto;
   min-height: 100svh;
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background: var(--canvas);
+  color: var(--text-primary);
 }
 
 h1,
 h2 {
   font-weight: 600;
-  color: var(--text-h);
+  color: var(--text-primary);
 }
 
 a {
-  color: var(--text-h);
+  color: var(--text-primary);
 }
 
 a:hover {
-  text-decoration: underline;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }

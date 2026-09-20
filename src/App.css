@@ -1,52 +1,260 @@
+.page-canvas {
+  position: relative;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .page-canvas {
+    padding-inline: 3rem;
+  }
+}
+
 .home,
 .countdown-page {
-  padding: 2rem 1.5rem 3rem;
   text-align: left;
 }
 
-.home h1,
-.countdown-page h1 {
-  margin: 0 0 0.5rem;
+.countdown-page {
+  padding: 2rem 1.5rem 3rem;
 }
 
-.home > p,
+.home-glow {
+  position: absolute;
+  top: -4rem;
+  left: 50%;
+  z-index: 0;
+  width: 75%;
+  height: 14rem;
+  pointer-events: none;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  filter: blur(64px);
+  transform: translateX(-50%);
+}
+
+.home > * {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.brand-logo {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.brand-header h1 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+.countdown-page h1 {
+  margin: 0;
+}
+
+.brand-tagline {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.home-hero {
+  max-width: 40rem;
+  margin-bottom: 2rem;
+}
+
+.home-headline {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.home-intro,
 .countdown-page > p {
-  margin: 0 0 1.5rem;
-  color: var(--text);
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.featured-section {
+  margin-top: 0.5rem;
+}
+
+.featured-label-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.featured-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--accent);
 }
 
 .tool-list {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
 }
 
 .tool-card {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
   text-decoration: none;
   color: inherit;
-  background: var(--bg);
-  transition: border-color 0.2s;
+  background: var(--surface-card);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.tool-card:hover {
-  border-color: var(--text-h);
+.featured-card {
+  position: relative;
+}
+
+.featured-accent {
+  display: block;
+  height: 2px;
+  background: var(--accent);
+}
+
+.tool-card-body {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.25rem 0.85rem;
+}
+
+.tool-card-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.75rem;
+  background: var(--surface-raised);
+  color: var(--accent);
+  transition: transform 0.2s ease;
+}
+
+.tool-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.tool-card:hover,
+.tool-card:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.tool-card:hover .tool-card-title {
+  color: var(--accent);
+}
+
+.tool-card:hover .tool-card-icon {
+  transform: scale(1.05);
+}
+
+.tool-card:hover .tool-card-footer-arrow {
+  color: var(--accent);
+  transform: translateX(2px);
 }
 
 .tool-card-title {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
-  color: var(--text-h);
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+  color: var(--text-primary);
+  transition: color 0.2s ease;
+}
+
+.tool-card-meta {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  color: var(--text-secondary);
 }
 
 .tool-card-description {
-  color: var(--text);
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+}
+
+.tool-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.35rem 0.75rem 0.75rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--border-divider);
+  border-radius: 0.375rem;
+  background: var(--surface-inset);
+}
+
+.tool-card-footer-label,
+.tool-card-footer-arrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+.tool-card-footer-arrow {
+  display: inline-block;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .countdown-settings {
@@ -65,16 +273,16 @@
 
 .field label {
   font-weight: 600;
-  color: var(--text-h);
+  color: var(--text-primary);
 }
 
 .field input {
   font: inherit;
   padding: 0.5rem 0.65rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
-  background: var(--surface);
-  color: var(--text-h);
+  background: var(--surface-raised);
+  color: var(--text-primary);
 }
 
 .form-error {
@@ -87,10 +295,10 @@
   font: inherit;
   font-weight: 600;
   padding: 0.55rem 1.1rem;
-  border: 1px solid var(--text-h);
+  border: 1px solid var(--text-primary);
   border-radius: 6px;
-  background: var(--text-h);
-  color: var(--surface);
+  background: var(--text-primary);
+  color: var(--canvas);
   cursor: pointer;
 }
 
@@ -98,9 +306,25 @@
   align-self: flex-start;
 }
 
+.countdown-settings button[type="button"] {
+  font: inherit;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.countdown-settings button[type="button"]:hover {
+  color: var(--text-primary);
+}
+
+/* Countdown display + projection use isolated tokens (not chrome fonts/palette). */
 .countdown-display {
   background: var(--countdown-bg);
   color: var(--countdown-fg);
+  font-family: var(--countdown-sans);
   border-radius: 12px;
   padding: 3rem 1.5rem;
   text-align: center;
@@ -121,6 +345,7 @@
 .countdown-title {
   margin: 0 0 0.75rem;
   color: var(--countdown-fg);
+  font-family: var(--countdown-sans);
   font-size: 2rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -129,7 +354,7 @@
 
 .countdown-digits {
   margin: 0;
-  font-family: var(--mono);
+  font-family: var(--countdown-mono);
   font-size: calc(var(--circle-size) * 0.108);
   font-weight: 600;
   letter-spacing: 0;
@@ -207,6 +432,8 @@
   height: 100vh;
   max-width: none;
   background: var(--countdown-bg);
+  color: var(--countdown-fg);
+  font-family: var(--countdown-sans);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -245,4 +472,8 @@
   top: 1.5rem;
   right: 1.5rem;
   z-index: 2;
+}
+
+.countdown-page.projecting .countdown-digits {
+  font-family: var(--countdown-mono);
 }
