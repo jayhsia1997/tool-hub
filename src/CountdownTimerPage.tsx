@@ -1,6 +1,6 @@
 import { CircleProgress } from "@/components/ui/circle-progress";
 import { SlidingNumber } from "@/components/ui/sliding-number";
-import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { clearAppliedCountdown, loadAppliedCountdown, saveAppliedCountdown } from "./countdownStorage";
 import {
@@ -35,6 +35,83 @@ function progressColor(percentage: number) {
   if (percentage > 0.66) return "stroke-emerald-500";
   if (percentage > 0.33) return "stroke-amber-500";
   return "stroke-rose-500";
+}
+
+/** Size the projection ring so a multi-line title above it still fits in the viewport. */
+function projectingCircleSize(viewportWidth: number, viewportHeight: number, hasHeading: boolean) {
+  const preferred = Math.max(280, Math.floor(Math.min(viewportWidth, viewportHeight) * 0.58));
+  if (!hasHeading) {
+    return preferred;
+  }
+  const topPad = Math.max(40, Math.floor(viewportHeight * 0.07));
+  const bottomPad = Math.max(24, Math.floor(viewportHeight * 0.04));
+  const titleReserve = Math.max(Math.floor(viewportHeight * 0.28), topPad + 120);
+  const available = viewportHeight - titleReserve - bottomPad;
+  return Math.max(200, Math.min(preferred, available));
+}
+
+type RemainingParts = ReturnType<typeof remainingParts>;
+
+type CountdownReadoutProps = {
+  applied: AppliedCountdown;
+  remainingMs: number;
+  parts: RemainingParts;
+  headingText: string | null;
+  showCompletionMessage: boolean;
+  circleSize: number;
+  strokeWidth: number;
+};
+
+function CountdownReadout({
+  applied,
+  remainingMs,
+  parts,
+  headingText,
+  showCompletionMessage,
+  circleSize,
+  strokeWidth,
+}: CountdownReadoutProps) {
+  return (
+    <>
+      {headingText ? (
+        <h2 className={showCompletionMessage ? "countdown-title countdown-completion-title" : "countdown-title"}>
+          {headingText}
+        </h2>
+      ) : null}
+      <div
+        className="countdown-circle"
+        style={
+          {
+            "--circle-size": `${circleSize}px`,
+            "--circle-stroke": `${strokeWidth}px`,
+          } as CSSProperties
+        }
+      >
+        <CircleProgress
+          value={remainingMs}
+          maxValue={applied.initialDurationMs}
+          size={circleSize}
+          strokeWidth={strokeWidth}
+          counterClockwise
+          disableAnimation
+          getColor={progressColor}
+          className="countdown-circle-progress"
+        />
+        <div className="countdown-circle-center">
+          <div className="countdown-digits" role="timer" aria-live="polite">
+            <span className="sr-only">{formatRemaining(remainingMs)}</span>
+            <div className="countdown-digits-face" aria-hidden="true">
+              <SlidingNumber value={parts.hours} padStart />
+              <span className="countdown-digits-separator">:</span>
+              <SlidingNumber value={parts.minutes} padStart />
+              <span className="countdown-digits-separator">:</span>
+              <SlidingNumber value={parts.seconds} padStart />
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export function CountdownTimerPage() {
@@ -153,18 +230,34 @@ export function CountdownTimerPage() {
   const headingText = showCompletionMessage ? applied.completionMessage : applied?.title ? applied.title : null;
   const parts = remainingMs !== null ? remainingParts(remainingMs) : null;
   void viewportTick;
-  const circleSize = isProjecting ? Math.max(280, Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.58)) : 200;
+  const circleSize = isProjecting
+    ? projectingCircleSize(window.innerWidth, window.innerHeight, headingText != null)
+    : 200;
   const strokeWidth = isProjecting ? Math.max(12, Math.round(circleSize * 0.035)) : 8;
 
-  return (
-    <main className={isProjecting ? "countdown-page projecting" : "countdown-page"}>
-      {!isProjecting ? (
-        <>
-          <p>
-            <Link to="/">Back to Tool Hub</Link>
-          </p>
-          <h1>Countdown Timer</h1>
+  const activeReadout =
+    applied && remainingMs !== null && parts !== null ? (
+      <CountdownReadout
+        applied={applied}
+        remainingMs={remainingMs}
+        parts={parts}
+        headingText={headingText}
+        showCompletionMessage={showCompletionMessage}
+        circleSize={circleSize}
+        strokeWidth={strokeWidth}
+      />
+    ) : null;
 
+  let workspace: ReactNode = null;
+  if (!isProjecting) {
+    workspace = (
+      <>
+        <p className="countdown-back">
+          <Link to="/">Back to Tool Hub</Link>
+        </p>
+        <h1>Countdown Timer</h1>
+
+        <div className="countdown-workspace">
           <form className="countdown-settings" onSubmit={handleApply}>
             <div className="field">
               <label htmlFor="countdown-title">Title</label>
@@ -208,59 +301,41 @@ export function CountdownTimerPage() {
               </p>
             ) : null}
 
-            <button type="submit">Apply</button>
-            {applied ? (
-              <button type="button" onClick={handleCancel}>
-                Cancel countdown
-              </button>
-            ) : null}
-          </form>
-        </>
-      ) : null}
-
-      {applied && remainingMs !== null && parts !== null ? (
-        <section className="countdown-display" aria-label="Countdown display">
-          {headingText ? (
-            <h2 className={showCompletionMessage ? "countdown-title countdown-completion-title" : "countdown-title"}>{headingText}</h2>
-          ) : null}
-          <div
-            className="countdown-circle"
-            style={
-              {
-                "--circle-size": `${circleSize}px`,
-                "--circle-stroke": `${strokeWidth}px`,
-              } as CSSProperties
-            }
-          >
-            <CircleProgress
-              value={remainingMs}
-              maxValue={applied.initialDurationMs}
-              size={circleSize}
-              strokeWidth={strokeWidth}
-              counterClockwise
-              disableAnimation
-              getColor={progressColor}
-              className="countdown-circle-progress"
-            />
-            <div className="countdown-circle-center">
-              <div className="countdown-digits" role="timer" aria-live="polite">
-                <span className="sr-only">{formatRemaining(remainingMs)}</span>
-                <div className="countdown-digits-face" aria-hidden="true">
-                  <SlidingNumber value={parts.hours} padStart />
-                  <span className="countdown-digits-separator">:</span>
-                  <SlidingNumber value={parts.minutes} padStart />
-                  <span className="countdown-digits-separator">:</span>
-                  <SlidingNumber value={parts.seconds} padStart />
-                </div>
-              </div>
+            <div className="countdown-actions">
+              <button type="submit">Apply</button>
+              {applied ? (
+                <button type="button" onClick={handleCancel}>
+                  Cancel countdown
+                </button>
+              ) : null}
             </div>
-          </div>
-          {!isProjecting ? (
-            <button type="button" onClick={handleEnterFullscreen}>
-              Enter fullscreen
-            </button>
-          ) : null}
-          {isProjecting && showReturnControl ? (
+          </form>
+
+          {activeReadout ? (
+            <section className="countdown-preview" aria-label="Countdown display">
+              {activeReadout}
+              <button type="button" className="countdown-preview-action" onClick={handleEnterFullscreen}>
+                Enter fullscreen
+              </button>
+            </section>
+          ) : (
+            <section className="countdown-preview countdown-preview--empty" aria-label="Countdown preview">
+              <p className="countdown-preview-empty">Set a target time to begin</p>
+            </section>
+          )}
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <main className={isProjecting ? "countdown-page projecting" : "countdown-page page-canvas"}>
+      {workspace}
+
+      {isProjecting && activeReadout ? (
+        <section className="countdown-display" aria-label="Countdown display">
+          {activeReadout}
+          {showReturnControl ? (
             <button type="button" onClick={handleReturnToSettings}>
               Return to settings
             </button>
