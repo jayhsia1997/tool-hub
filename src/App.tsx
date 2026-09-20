@@ -1,7 +1,7 @@
-import { Route, Routes } from 'react-router-dom'
-import { CountdownTimerPage } from './CountdownTimerPage'
-import { HomePage } from './HomePage'
-import './App.css'
+import { Route, Routes } from "react-router-dom";
+import "./App.css";
+import { CountdownTimerPage } from "./CountdownTimerPage";
+import { HomePage } from "./HomePage";
 
 export default function App() {
   return (
@@ -9,5 +9,5 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/countdown" element={<CountdownTimerPage />} />
     </Routes>
-  )
+  );
 }

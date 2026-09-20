@@ -1,52 +1,44 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import {
-  formatRemaining,
-  remainingMilliseconds,
-  validateTargetTime,
-  type AppliedCountdown,
-} from './countdownTime'
+import { useEffect, useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
+import { formatRemaining, remainingMilliseconds, validateTargetTime, type AppliedCountdown } from "./countdownTime";
 
 export function CountdownTimerPage() {
-  const [title, setTitle] = useState('')
-  const [targetTimeInput, setTargetTimeInput] = useState('')
-  const [completionMessage, setCompletionMessage] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [applied, setApplied] = useState<AppliedCountdown | null>(null)
-  const [now, setNow] = useState(() => new Date())
+  const [title, setTitle] = useState("");
+  const [targetTimeInput, setTargetTimeInput] = useState("");
+  const [completionMessage, setCompletionMessage] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [applied, setApplied] = useState<AppliedCountdown | null>(null);
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     if (!applied) {
-      return
+      return;
     }
     const id = window.setInterval(() => {
-      setNow(new Date())
-    }, 250)
-    return () => window.clearInterval(id)
-  }, [applied])
+      setNow(new Date());
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [applied]);
 
   function handleApply(event: FormEvent) {
-    event.preventDefault()
-    const result = validateTargetTime(targetTimeInput, new Date())
+    event.preventDefault();
+    const result = validateTargetTime(targetTimeInput, new Date());
     if (!result.ok) {
-      setError(result.message)
-      return
+      setError(result.message);
+      return;
     }
-    setError(null)
+    setError(null);
     setApplied({
       title: title.trim(),
       targetTime: result.target,
       completionMessage: completionMessage.trim(),
-    })
-    setNow(new Date())
+    });
+    setNow(new Date());
   }
 
-  const remainingMs = applied
-    ? remainingMilliseconds(applied.targetTime, now)
-    : null
-  const isComplete = remainingMs === 0
-  const showCompletionMessage =
-    isComplete && applied !== null && applied.completionMessage.length > 0
+  const remainingMs = applied ? remainingMilliseconds(applied.targetTime, now) : null;
+  const isComplete = remainingMs === 0;
+  const showCompletionMessage = isComplete && applied !== null && applied.completionMessage.length > 0;
 
   return (
     <main className="countdown-page">
@@ -81,9 +73,7 @@ export function CountdownTimerPage() {
         </div>
 
         <div className="field">
-          <label htmlFor="countdown-completion-message">
-            Completion Message
-          </label>
+          <label htmlFor="countdown-completion-message">Completion Message</label>
           <input
             id="countdown-completion-message"
             name="completionMessage"
@@ -104,10 +94,7 @@ export function CountdownTimerPage() {
       </form>
 
       {applied ? (
-        <section
-          className="countdown-display"
-          aria-label="Countdown display"
-        >
+        <section className="countdown-display" aria-label="Countdown display">
           {applied.title ? <h2 className="countdown-title">{applied.title}</h2> : null}
           {showCompletionMessage ? (
             <p className="completion-message">{applied.completionMessage}</p>
@@ -119,5 +106,5 @@ export function CountdownTimerPage() {
         </section>
       ) : null}
     </main>
-  )
+  );
 }
