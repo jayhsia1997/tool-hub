@@ -82,7 +82,7 @@
   color: var(--danger);
 }
 
-.countdown-settings button[type='submit'],
+.countdown-settings button[type="submit"],
 .countdown-display button {
   font: inherit;
   font-weight: 600;
@@ -94,7 +94,7 @@
   cursor: pointer;
 }
 
-.countdown-settings button[type='submit'] {
+.countdown-settings button[type="submit"] {
   align-self: flex-start;
 }
 
@@ -119,25 +119,82 @@
 }
 
 .countdown-title {
-  margin: 0;
+  margin: 0 0 0.75rem;
   color: var(--countdown-fg);
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
 }
 
 .countdown-digits {
   margin: 0;
   font-family: var(--mono);
-  font-size: clamp(2.5rem, 12vw, 5rem);
+  font-size: calc(var(--circle-size) * 0.108);
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
+  line-height: 1;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.countdown-digits-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.countdown-digits-separator {
+  color: rgb(255 255 255 / 0.55);
+  padding-inline: 0.04em;
   line-height: 1;
 }
 
-.completion-message {
-  margin: 0;
-  font-size: clamp(1.5rem, 6vw, 2.5rem);
-  font-weight: 500;
+.countdown-circle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--circle-size);
+  height: var(--circle-size);
+  flex-shrink: 0;
+}
+
+.countdown-circle-center {
+  position: absolute;
+  inset: calc(var(--circle-stroke) * 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.countdown-circle-progress {
+  display: block;
+  line-height: 0;
+}
+
+.countdown-circle-progress svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.countdown-circle-progress svg > circle:first-of-type {
+  stroke: rgb(255 255 255 / 0.2);
+}
+
+.countdown-circle-progress svg > circle:last-of-type {
+  transition:
+    stroke-dashoffset 250ms linear,
+    stroke 250ms linear;
+}
+
+.countdown-completion-title {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
 }
 
 .countdown-page.projecting {
@@ -146,6 +203,9 @@
   z-index: 10;
   margin: 0;
   padding: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
   background: var(--countdown-bg);
   display: flex;
   align-items: center;
@@ -154,26 +214,35 @@
 
 .countdown-page.projecting .countdown-display {
   width: 100%;
+  height: 100%;
   min-height: 100%;
   border-radius: 0;
-  padding: 2rem;
+  padding: 0;
   position: relative;
+  justify-content: center;
+  gap: 0;
+  overflow: hidden;
 }
 
 .countdown-page.projecting .countdown-title {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  position: absolute;
+  top: max(2.5rem, 7vh);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  width: min(92vw, 48rem);
+  font-size: clamp(2.75rem, 7vw, 5rem);
+  font-weight: 600;
+  z-index: 1;
 }
 
-.countdown-page.projecting .countdown-digits {
-  font-size: clamp(4rem, 18vw, 12rem);
-}
-
-.countdown-page.projecting .completion-message {
-  font-size: clamp(2rem, 8vw, 4rem);
+.countdown-page.projecting .countdown-completion-title {
+  font-size: clamp(2rem, 5.5vw, 4rem);
 }
 
 .countdown-page.projecting .countdown-display button {
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
+  z-index: 2;
 }

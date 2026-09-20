@@ -32,6 +32,7 @@ describe("Countdown Timer", () => {
 
   afterEach(() => {
     fullscreen.restore();
+    window.localStorage.clear();
     vi.useRealTimers();
   });
 
@@ -150,8 +151,12 @@ describe("Countdown Timer", () => {
     applySettings();
 
     advanceClockTo(new Date(2026, 8, 20, 10, 0, 2));
-    expect(screen.queryByRole("timer")).not.toBeInTheDocument();
-    expect(within(screen.getByLabelText(/countdown display/i)).getByText("Time is up")).toBeInTheDocument();
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:00");
+    expect(
+      within(screen.getByLabelText(/countdown display/i)).getByRole("heading", {
+        name: "Time is up",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("supports a Target Time more than one hour away", () => {
@@ -239,14 +244,10 @@ describe("Countdown Timer", () => {
       fireEvent.click(screen.getByRole("button", { name: /enter fullscreen/i }));
     });
 
-    expect(
-      screen.queryByRole("button", { name: /return to settings/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /return to settings/i })).not.toBeInTheDocument();
 
     fireEvent.mouseMove(document.documentElement);
-    expect(
-      screen.getByRole("button", { name: /return to settings/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /return to settings/i })).toBeInTheDocument();
 
     advanceClockTo(new Date(2026, 8, 20, 10, 0, 4));
     expect(screen.getByRole("timer")).toHaveTextContent("00:00:16");
@@ -277,16 +278,177 @@ describe("Countdown Timer", () => {
     });
 
     fireEvent.mouseMove(document.documentElement);
-    expect(
-      screen.getByRole("button", { name: /return to settings/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /return to settings/i })).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(2000);
     });
 
+    expect(screen.queryByRole("button", { name: /return to settings/i })).not.toBeInTheDocument();
+  });
+
+  it("restores custom settings and remaining time after remount with the clock advanced", () => {
+    const { unmount } = renderApp("/countdown");
+
+    fireEvent.change(screen.getByLabelText(/^title$/i), {
+      target: { value: "Break ends" },
+    });
+    fireEvent.change(screen.getByLabelText(/completion message/i), {
+      target: { value: "Back to work" },
+    });
+    setTargetTime("11:00:00");
+    applySettings();
+    expect(screen.getByRole("timer")).toHaveTextContent("01:00:00");
+
+    advanceClockTo(new Date(2026, 8, 20, 10, 15, 0));
+    expect(screen.getByRole("timer")).toHaveTextContent("00:45:00");
+    unmount();
+
+    advanceClockTo(new Date(2026, 8, 20, 10, 30, 0));
+    renderApp("/countdown");
+
+    expect(screen.getByLabelText(/^title$/i)).toHaveValue("Break ends");
+    expect(screen.getByLabelText(/completion message/i)).toHaveValue("Back to work");
+    expect(screen.getByLabelText(/target time/i)).toHaveValue("11:00:00");
     expect(
-      screen.queryByRole("button", { name: /return to settings/i }),
-    ).not.toBeInTheDocument();
+      within(screen.getByLabelText(/countdown display/i)).getByRole("heading", {
+        name: "Break ends",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("timer")).toHaveTextContent("00:30:00");
+  });
+
+  it("restores blank optional fields and a still-running countdown after remount", () => {
+    const { unmount } = renderApp("/countdown");
+
+    setTargetTime("12:00:00");
+    applySettings();
+    expect(screen.getByRole("timer")).toHaveTextContent("02:00:00");
+    unmount();
+
+    advanceClockTo(new Date(2026, 8, 20, 11, 0, 0));
+    renderApp("/countdown");
+
+    expect(screen.getByLabelText(/^title$/i)).toHaveValue("");
+    expect(screen.getByLabelText(/completion message/i)).toHaveValue("");
+    expect(screen.getByLabelText(/target time/i)).toHaveValue("12:00:00");
+    expect(within(screen.getByLabelText(/countdown display/i)).queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.getByRole("timer")).toHaveTextContent("01:00:00");
+  });
+
+  it("restores an elapsed Target Time with a Completion Message", () => {
+    const { unmount } = renderApp("/countdown");
+
+    fireEvent.change(screen.getByLabelText(/completion message/i), {
+      target: { value: "Time is up" },
+    });
+    setTargetTime("10:00:05");
+    applySettings();
+    unmount();
+
+    advanceClockTo(new Date(2026, 8, 20, 10, 0, 10));
+    renderApp("/countdown");
+
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:00");
+    expect(
+      within(screen.getByLabelText(/countdown display/i)).getByRole("heading", {
+        name: "Time is up",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("restores an elapsed Target Time as 00:00:00 when Completion Message is blank", () => {
+    const { unmount } = renderApp("/countdown");
+
+    setTargetTime("10:00:05");
+    applySettings();
+    unmount();
+
+    advanceClockTo(new Date(2026, 8, 20, 10, 0, 10));
+    renderApp("/countdown");
+
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:00");
+  });
+
+  it("keeps the original dated Target Time when restored on a later calendar day", () => {
+    const { unmount } = renderApp("/countdown");
+
+    setTargetTime("15:00:00");
+    applySettings();
+    expect(screen.getByRole("timer")).toHaveTextContent("05:00:00");
+    unmount();
+
+    advanceClockTo(new Date(2026, 8, 21, 10, 0, 0));
+    renderApp("/countdown");
+
+    expect(screen.getByLabelText(/target time/i)).toHaveValue("15:00:00");
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:00");
+  });
+
+  it("still rejects newly configured past Target Times after a restore", () => {
+    const { unmount } = renderApp("/countdown");
+
+    setTargetTime("11:00:00");
+    applySettings();
+    unmount();
+
+    advanceClockTo(new Date(2026, 8, 20, 10, 30, 0));
+    renderApp("/countdown");
+    expect(screen.getByRole("timer")).toHaveTextContent("00:30:00");
+
+    setTargetTime("10:15:00");
+    applySettings();
+
+    expect(screen.getByRole("alert")).toHaveTextContent(/target time must be later than now/i);
+    expect(screen.getByRole("timer")).toHaveTextContent("00:30:00");
+  });
+
+  it("does not let an unreapplied draft Target Time replace the saved active Target Time", () => {
+    const { unmount } = renderApp("/countdown");
+
+    setTargetTime("11:00:00");
+    applySettings();
+    expect(screen.getByRole("timer")).toHaveTextContent("01:00:00");
+
+    setTargetTime("14:00:00");
+    expect(screen.getByLabelText(/target time/i)).toHaveValue("14:00:00");
+    expect(screen.getByRole("timer")).toHaveTextContent("01:00:00");
+    unmount();
+
+    renderApp("/countdown");
+
+    expect(screen.getByLabelText(/target time/i)).toHaveValue("11:00:00");
+    expect(screen.getByRole("timer")).toHaveTextContent("01:00:00");
+  });
+
+  it("cancels the countdown, clears settings, and stays cleared after remount", () => {
+    const { unmount } = renderApp("/countdown");
+
+    fireEvent.change(screen.getByLabelText(/^title$/i), {
+      target: { value: "Break ends" },
+    });
+    fireEvent.change(screen.getByLabelText(/completion message/i), {
+      target: { value: "Back to work" },
+    });
+    setTargetTime("11:00:00");
+    applySettings();
+    expect(screen.getByRole("timer")).toHaveTextContent("01:00:00");
+
+    fireEvent.click(screen.getByRole("button", { name: /cancel countdown/i }));
+
+    expect(screen.queryByLabelText(/countdown display/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("timer")).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/^title$/i)).toHaveValue("");
+    expect(screen.getByLabelText(/target time/i)).toHaveValue("");
+    expect(screen.getByLabelText(/completion message/i)).toHaveValue("");
+    expect(screen.queryByRole("button", { name: /cancel countdown/i })).not.toBeInTheDocument();
+    unmount();
+
+    renderApp("/countdown");
+
+    expect(screen.queryByLabelText(/countdown display/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/^title$/i)).toHaveValue("");
+    expect(screen.getByLabelText(/target time/i)).toHaveValue("");
+    expect(screen.getByLabelText(/completion message/i)).toHaveValue("");
   });
 });
