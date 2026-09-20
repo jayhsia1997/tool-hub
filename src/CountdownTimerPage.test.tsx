@@ -45,6 +45,14 @@ describe("Countdown Timer", () => {
     expect(screen.queryByText(/event/i)).not.toBeInTheDocument();
   });
 
+  it("shows an empty preview prompt before a countdown is applied", () => {
+    renderApp("/countdown");
+
+    expect(screen.getByText("Set a target time to begin")).toBeInTheDocument();
+    expect(screen.queryByRole("timer")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/countdown display/i)).not.toBeInTheDocument();
+  });
+
   it("rejects a missing Target Time", () => {
     renderApp("/countdown");
 
@@ -436,6 +444,7 @@ describe("Countdown Timer", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /cancel countdown/i }));
 
+    expect(screen.getByText("Set a target time to begin")).toBeInTheDocument();
     expect(screen.queryByLabelText(/countdown display/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("timer")).not.toBeInTheDocument();
     expect(screen.getByLabelText(/^title$/i)).toHaveValue("");
@@ -446,6 +455,7 @@ describe("Countdown Timer", () => {
 
     renderApp("/countdown");
 
+    expect(screen.getByText("Set a target time to begin")).toBeInTheDocument();
     expect(screen.queryByLabelText(/countdown display/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText(/^title$/i)).toHaveValue("");
     expect(screen.getByLabelText(/target time/i)).toHaveValue("");

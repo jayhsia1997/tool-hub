@@ -1,60 +1,298 @@
+.page-canvas {
+  position: relative;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .page-canvas {
+    padding-inline: 3rem;
+  }
+}
+
 .home,
 .countdown-page {
-  padding: 2rem 1.5rem 3rem;
   text-align: left;
 }
 
-.home h1,
-.countdown-page h1 {
-  margin: 0 0 0.5rem;
+.home-glow {
+  position: absolute;
+  top: -4rem;
+  left: 50%;
+  z-index: 0;
+  width: 75%;
+  height: 14rem;
+  pointer-events: none;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  filter: blur(64px);
+  transform: translateX(-50%);
 }
 
-.home > p,
-.countdown-page > p {
+.home > * {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.brand-logo {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.brand-header h1 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+.countdown-page h1 {
   margin: 0 0 1.5rem;
-  color: var(--text);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.countdown-back {
+  margin: 0 0 1rem;
+}
+
+.countdown-back a {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.countdown-back a:hover {
+  color: var(--text-primary);
+}
+
+.countdown-workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .countdown-workspace {
+    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.brand-tagline {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.home-hero {
+  max-width: 40rem;
+  margin-bottom: 2rem;
+}
+
+.home-headline {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.home-intro {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.featured-section {
+  margin-top: 0.5rem;
+}
+
+.featured-label-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.featured-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--accent);
 }
 
 .tool-list {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
 }
 
 .tool-card {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
   text-decoration: none;
   color: inherit;
-  background: var(--bg);
-  transition: border-color 0.2s;
+  background: var(--surface-card);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.tool-card:hover {
-  border-color: var(--text-h);
+.featured-card {
+  position: relative;
+}
+
+.featured-accent {
+  display: block;
+  height: 2px;
+  background: var(--accent);
+}
+
+.tool-card-body {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.25rem 0.85rem;
+}
+
+.tool-card-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.75rem;
+  background: var(--surface-raised);
+  color: var(--accent);
+  transition: transform 0.2s ease;
+}
+
+.tool-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.tool-card:hover,
+.tool-card:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.tool-card:hover .tool-card-title {
+  color: var(--accent);
+}
+
+.tool-card:hover .tool-card-icon {
+  transform: scale(1.05);
+}
+
+.tool-card:hover .tool-card-footer-arrow {
+  color: var(--accent);
+  transform: translateX(2px);
 }
 
 .tool-card-title {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
-  color: var(--text-h);
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+  color: var(--text-primary);
+  transition: color 0.2s ease;
+}
+
+.tool-card-meta {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  color: var(--text-secondary);
 }
 
 .tool-card-description {
-  color: var(--text);
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+}
+
+.tool-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.35rem 0.75rem 0.75rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--border-divider);
+  border-radius: 0.375rem;
+  background: var(--surface-inset);
+}
+
+.tool-card-footer-label,
+.tool-card-footer-arrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+.tool-card-footer-arrow {
+  display: inline-block;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .countdown-settings {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-width: 24rem;
-  margin-bottom: 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  background: var(--surface-card);
+  box-sizing: border-box;
 }
 
 .field {
@@ -64,43 +302,154 @@
 }
 
 .field label {
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--text-h);
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
 }
 
 .field input {
   font: inherit;
-  padding: 0.5rem 0.65rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--text-h);
+  font-size: 0.875rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border-divider);
+  border-radius: 0.5rem;
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  transition: border-color 0.15s ease;
+}
+
+.field input::placeholder {
+  color: color-mix(in srgb, var(--text-secondary) 60%, transparent);
+}
+
+.field input:hover {
+  border-color: var(--border-subtle);
+}
+
+.field input:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
 }
 
 .form-error {
   margin: 0;
   color: var(--danger);
+  font-size: 0.875rem;
 }
 
-.countdown-settings button[type="submit"],
-.countdown-display button {
-  font: inherit;
-  font-weight: 600;
-  padding: 0.55rem 1.1rem;
-  border: 1px solid var(--text-h);
-  border-radius: 6px;
-  background: var(--text-h);
-  color: var(--surface);
-  cursor: pointer;
+.countdown-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
 }
 
 .countdown-settings button[type="submit"] {
-  align-self: flex-start;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  background: var(--text-primary);
+  color: var(--canvas);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
 }
 
+.countdown-settings button[type="submit"]:hover {
+  background: #e4e0d7;
+}
+
+.countdown-settings button[type="button"] {
+  font: inherit;
+  font-size: 0.875rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.countdown-settings button[type="button"]:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* Non-fullscreen preview uses chrome tokens; projection stays isolated below. */
+.countdown-preview {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  min-height: 16rem;
+  padding: 1.75rem 1.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  background: var(--surface-card);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.countdown-preview--empty {
+  background: var(--surface-inset);
+  border-color: var(--border-divider);
+}
+
+.countdown-preview-empty {
+  margin: 0;
+  max-width: 16rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.countdown-preview .countdown-title {
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  letter-spacing: -0.015em;
+}
+
+.countdown-preview .countdown-digits {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.countdown-preview .countdown-digits-separator {
+  color: color-mix(in srgb, var(--accent) 85%, var(--text-primary));
+}
+
+.countdown-preview .countdown-circle-progress svg > circle:first-of-type {
+  stroke: rgb(244 241 234 / 0.12);
+}
+
+.countdown-preview-action {
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.countdown-preview-action:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* Projection display uses isolated tokens (not chrome fonts/palette). */
 .countdown-display {
   background: var(--countdown-bg);
   color: var(--countdown-fg);
+  font-family: var(--countdown-sans);
   border-radius: 12px;
   padding: 3rem 1.5rem;
   text-align: center;
@@ -113,14 +462,20 @@
 }
 
 .countdown-display button {
-  border-color: var(--countdown-fg);
+  font: inherit;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--countdown-fg);
+  border-radius: 6px;
   background: transparent;
   color: var(--countdown-fg);
+  cursor: pointer;
 }
 
 .countdown-title {
   margin: 0 0 0.75rem;
   color: var(--countdown-fg);
+  font-family: var(--countdown-sans);
   font-size: 2rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -129,7 +484,7 @@
 
 .countdown-digits {
   margin: 0;
-  font-family: var(--mono);
+  font-family: var(--countdown-mono);
   font-size: calc(var(--circle-size) * 0.108);
   font-weight: 600;
   letter-spacing: 0;
@@ -207,6 +562,8 @@
   height: 100vh;
   max-width: none;
   background: var(--countdown-bg);
+  color: var(--countdown-fg);
+  font-family: var(--countdown-sans);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,25 +576,38 @@
   border-radius: 0;
   padding: 0;
   position: relative;
-  justify-content: center;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  justify-items: center;
+  align-items: center;
   gap: 0;
   overflow: hidden;
 }
 
 .countdown-page.projecting .countdown-title {
-  position: absolute;
-  top: max(2.5rem, 7vh);
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin: max(2.5rem, 7vh) 1rem 0.75rem;
   width: min(92vw, 48rem);
-  font-size: clamp(2.75rem, 7vw, 5rem);
+  max-width: min(92vw, 48rem);
+  font-size: clamp(2rem, 5.5vw, 4.5rem);
   font-weight: 600;
+  line-height: 1.15;
   z-index: 1;
+  justify-self: center;
+  align-self: start;
+}
+
+.countdown-page.projecting .countdown-circle {
+  grid-row: 2;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .countdown-page.projecting .countdown-completion-title {
-  font-size: clamp(2rem, 5.5vw, 4rem);
+  font-size: clamp(1.75rem, 4.5vw, 3.5rem);
 }
 
 .countdown-page.projecting .countdown-display button {
@@ -245,4 +615,8 @@
   top: 1.5rem;
   right: 1.5rem;
   z-index: 2;
+}
+
+.countdown-page.projecting .countdown-digits {
+  font-family: var(--countdown-mono);
 }
