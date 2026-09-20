@@ -82,8 +82,8 @@
   color: var(--danger);
 }
 
-.countdown-settings button[type='submit'] {
-  align-self: flex-start;
+.countdown-settings button[type='submit'],
+.countdown-display button {
   font: inherit;
   font-weight: 600;
   padding: 0.55rem 1.1rem;
@@ -92,6 +92,10 @@
   background: var(--text-h);
   color: var(--surface);
   cursor: pointer;
+}
+
+.countdown-settings button[type='submit'] {
+  align-self: flex-start;
 }
 
 .countdown-display {
@@ -104,7 +108,14 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: 1rem;
+}
+
+.countdown-display button {
+  border-color: var(--countdown-fg);
+  background: transparent;
+  color: var(--countdown-fg);
 }
 
 .countdown-title {
@@ -127,4 +138,42 @@
   margin: 0;
   font-size: clamp(1.5rem, 6vw, 2.5rem);
   font-weight: 500;
+}
+
+.countdown-page.projecting {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  background: var(--countdown-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown-page.projecting .countdown-display {
+  width: 100%;
+  min-height: 100%;
+  border-radius: 0;
+  padding: 2rem;
+  position: relative;
+}
+
+.countdown-page.projecting .countdown-title {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.countdown-page.projecting .countdown-digits {
+  font-size: clamp(4rem, 18vw, 12rem);
+}
+
+.countdown-page.projecting .completion-message {
+  font-size: clamp(2rem, 8vw, 4rem);
+}
+
+.countdown-page.projecting .countdown-display button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
 }
