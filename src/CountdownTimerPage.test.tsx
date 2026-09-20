@@ -1,5 +1,6 @@
 import { act, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { installFullscreenMock } from "./test/fullscreenMock";
 import { renderApp } from "./test/renderApp";
 
 function setTargetTime(value: string) {
@@ -21,12 +22,16 @@ function advanceClockTo(date: Date) {
 }
 
 describe("Countdown Timer", () => {
+  let fullscreen: ReturnType<typeof installFullscreenMock>;
+
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 8, 20, 10, 0, 0));
+    fullscreen = installFullscreenMock();
   });
 
   afterEach(() => {
+    fullscreen.restore();
     vi.useRealTimers();
   });
 
@@ -173,5 +178,115 @@ describe("Countdown Timer", () => {
 
     advanceClockTo(new Date(2026, 8, 20, 11, 0, 0));
     expect(screen.getByRole("timer")).toHaveTextContent("00:00:00");
+  });
+
+  it("enters fullscreen projection and hides settings", async () => {
+    renderApp("/countdown");
+
+    fireEvent.change(screen.getByLabelText(/^title$/i), {
+      target: { value: "Break" },
+    });
+    setTargetTime("11:00");
+    applySettings();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /enter fullscreen/i }));
+    });
+
+    expect(document.fullscreenElement).toBe(document.documentElement);
+    expect(screen.queryByLabelText(/target time/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /apply/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("timer")).toHaveTextContent("01:00:00");
+    expect(
+      within(screen.getByLabelText(/countdown display/i)).getByRole("heading", {
+        name: "Break",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("reveals settings when native fullscreen exits and keeps counting", async () => {
+    renderApp("/countdown");
+
+    setTargetTime("10:00:10");
+    applySettings();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /enter fullscreen/i }));
+    });
+    expect(screen.queryByLabelText(/target time/i)).not.toBeInTheDocument();
+
+    advanceClockTo(new Date(2026, 8, 20, 10, 0, 3));
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:07");
+
+    await act(async () => {
+      await fullscreen.exitFullscreen();
+    });
+
+    expect(screen.getByLabelText(/target time/i)).toBeInTheDocument();
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:07");
+
+    advanceClockTo(new Date(2026, 8, 20, 10, 0, 5));
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:05");
+  });
+
+  it("reveals return-to-settings on mouse move and returns without restarting", async () => {
+    renderApp("/countdown");
+
+    setTargetTime("10:00:20");
+    applySettings();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /enter fullscreen/i }));
+    });
+
+    expect(
+      screen.queryByRole("button", { name: /return to settings/i }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.mouseMove(document.documentElement);
+    expect(
+      screen.getByRole("button", { name: /return to settings/i }),
+    ).toBeInTheDocument();
+
+    advanceClockTo(new Date(2026, 8, 20, 10, 0, 4));
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:16");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /return to settings/i }));
+    });
+
+    expect(document.fullscreenElement).toBeNull();
+    expect(screen.getByLabelText(/target time/i)).toBeInTheDocument();
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:16");
+
+    setTargetTime("12:00");
+    expect(screen.getByRole("timer")).toHaveTextContent("00:00:16");
+
+    applySettings();
+    expect(screen.getByRole("timer")).toHaveTextContent("01:59:56");
+  });
+
+  it("hides the return-to-settings control after mouse idle", async () => {
+    renderApp("/countdown");
+
+    setTargetTime("11:00");
+    applySettings();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /enter fullscreen/i }));
+    });
+
+    fireEvent.mouseMove(document.documentElement);
+    expect(
+      screen.getByRole("button", { name: /return to settings/i }),
+    ).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    expect(
+      screen.queryByRole("button", { name: /return to settings/i }),
+    ).not.toBeInTheDocument();
   });
 });
