@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-:root {
-  /* Approved chrome palette (#9) — reusable for settings (#10) */
+:root,
+[data-theme="dark"] {
   --canvas: #111111;
   --surface-inset: #141414;
   --surface-card: #181818;
@@ -13,26 +13,26 @@
   --border-strong: #333333;
   --border-divider: #262626;
   --danger: #ba1a1a;
+  --header-bg: color-mix(in srgb, var(--canvas) 90%, transparent);
+  --selection-bg: color-mix(in srgb, var(--accent) 30%, transparent);
 
   --font-sans-family: "Geist", "Segoe UI", system-ui, sans-serif;
-  --font-mono-family: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
   --font-sans: var(--font-sans-family);
-  --font-mono: var(--font-mono-family);
 
-  /* Projection tokens — isolated from chrome fonts/palette */
-  --countdown-bg: #0f1419;
-  --countdown-fg: #ffffff;
-  --countdown-sans: "Segoe UI", system-ui, sans-serif;
-  --countdown-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  --countdown-bg: var(--canvas);
+  --countdown-fg: var(--text-primary);
+  --countdown-sans: var(--font-sans);
+  --countdown-digits: var(--font-sans);
+  --countdown-track: color-mix(in srgb, var(--text-primary) 12%, transparent);
+  --countdown-separator: color-mix(in srgb, var(--accent) 85%, var(--text-primary));
 
-  /* Legacy aliases kept for remaining shared chrome styles */
   --text: var(--text-secondary);
   --text-h: var(--text-primary);
   --bg: var(--canvas);
   --border: var(--border-subtle);
   --surface: var(--surface-card);
   --sans: var(--font-sans);
-  --mono: var(--font-mono);
+  --mono: var(--font-sans);
 
   --background: var(--canvas);
   --foreground: var(--text-primary);
@@ -62,6 +62,33 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+[data-theme="light"] {
+  --canvas: #faf7f2;
+  --surface-inset: #f4f1ea;
+  --surface-card: #ffffff;
+  --surface-raised: #efece4;
+  --text-primary: #18181b;
+  --text-secondary: #716e66;
+  --accent: #b89b5e;
+  --border-subtle: #e6e1d6;
+  --border-strong: #e2ddd0;
+  --border-divider: #e6e1d6;
+  --danger: #ba1a1a;
+  --header-bg: color-mix(in srgb, var(--canvas) 90%, transparent);
+  --selection-bg: color-mix(in srgb, var(--accent) 20%, transparent);
+  --countdown-track: color-mix(in srgb, var(--text-primary) 12%, transparent);
+  --countdown-separator: color-mix(in srgb, var(--accent) 85%, var(--text-primary));
+  --primary: var(--text-primary);
+  --primary-foreground: #f4f1ea;
+  --secondary: var(--surface-raised);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-raised);
+  --muted-foreground: var(--text-secondary);
+  --accent-foreground: var(--canvas);
+  --input: var(--border-subtle);
+  --ring: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -83,7 +110,7 @@
   --color-ring: var(--ring);
   --color-border: var(--border);
   --font-sans: var(--font-sans-family);
-  --font-mono: var(--font-mono-family);
+  --font-mono: var(--font-sans-family);
   --radius-lg: var(--radius);
 }
 
@@ -99,8 +126,14 @@ body {
   color: var(--text-primary);
 }
 
+::selection {
+  background: var(--selection-bg);
+  color: var(--text-primary);
+}
+
 h1,
-h2 {
+h2,
+h3 {
   font-weight: 600;
   color: var(--text-primary);
 }

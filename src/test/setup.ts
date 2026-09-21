@@ -42,6 +42,22 @@ class ResizeObserverStub {
 
 vi.stubGlobal("ResizeObserver", ResizeObserverStub);
 
+vi.stubGlobal(
+  "matchMedia",
+  vi.fn().mockImplementation((query: string) => ({
+    matches: query === "(prefers-color-scheme: dark)",
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })),
+);
+
 afterEach(() => {
   cleanup();
+  window.localStorage.clear();
+  document.documentElement.removeAttribute("data-theme");
 });
