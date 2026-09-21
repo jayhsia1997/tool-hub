@@ -2,6 +2,7 @@ import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderApp } from "./test/renderApp";
+import { FAVORITES_STORAGE_KEY } from "./favoritesStorage";
 import { THEME_STORAGE_KEY } from "./theme/themeStorage";
 
 const COMING_SOON_NAMES = [
@@ -97,7 +98,7 @@ describe("Tool Hub homepage", () => {
     expect(screen.queryByText(/pomodoro/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/set a target time to begin/i)).not.toBeInTheDocument();
     expect(screen.getByRole("searchbox", { name: /search tools/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /starred/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^starred$/i })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /documentation/i })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /keyboard shortcuts/i })).toBeInTheDocument();
 
@@ -309,5 +310,99 @@ describe("Tool Hub homepage", () => {
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog", { name: /keyboard shortcuts/i })).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
+  });
+
+  it("stars and unstars available and Coming soon tools without opening them, and lists them in Starred", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+
+    const starCountdown = screen.getByRole("button", { name: /^star countdown timer$/i });
+    expect(starCountdown).toHaveAttribute("aria-pressed", "false");
+    await user.click(starCountdown);
+    expect(screen.getByRole("button", { name: /^unstar countdown timer$/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("heading", { name: /precision tools for everyday focus/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /back to tool hub/i })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /^star stopwatch & split laps$/i }));
+    expect(screen.getByRole("button", { name: /^unstar stopwatch & split laps$/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("heading", { name: /precision tools for everyday focus/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /back to tool hub/i })).not.toBeInTheDocument();
+    expect(within(screen.getByRole("list", { name: /tools/i })).queryByRole("link", { name: /stopwatch/i })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /^starred$/i }));
+    expect(screen.getByRole("button", { name: /^starred$/i })).toHaveAttribute("aria-pressed", "true");
+
+    const starredTools = screen.getByRole("list", { name: /tools/i });
+    expect(within(starredTools).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(starredTools).getByText(/countdown timer/i)).toBeInTheDocument();
+    expect(within(starredTools).getByText(/stopwatch & split laps/i)).toBeInTheDocument();
+    expect(within(starredTools).getByRole("link", { name: /countdown timer/i })).toHaveAttribute("href", "/countdown");
+    expect(within(starredTools).queryByRole("link", { name: /stopwatch/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/^2 tools$/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /^unstar stopwatch & split laps$/i }));
+    expect(within(screen.getByRole("list", { name: /tools/i })).getAllByRole("listitem")).toHaveLength(1);
+    expect(within(screen.getByRole("list", { name: /tools/i })).queryByText(/stopwatch/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps Starred membership visible even if a search was active before opening Starred", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+
+    await user.click(screen.getByRole("button", { name: /^star countdown timer$/i }));
+    await user.type(screen.getByRole("searchbox", { name: /search tools/i }), "zzzz-no-match");
+    expect(screen.getByRole("heading", { name: /no matching tools found/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /^starred$/i }));
+    expect(screen.getByRole("searchbox", { name: /search tools/i })).toHaveValue("");
+    expect(within(screen.getByRole("list", { name: /tools/i })).getAllByRole("listitem")).toHaveLength(1);
+    expect(within(screen.getByRole("list", { name: /tools/i })).getByText(/countdown timer/i)).toBeInTheDocument();
+  });
+
+  it("shows an empty Starred state and returns to the full directory", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+
+    await user.click(screen.getByRole("button", { name: /^starred$/i }));
+    expect(screen.getByRole("heading", { name: /no starred tools yet/i })).toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: /tools/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/^0 tools$/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /browse all tools/i }));
+    expect(screen.getByRole("button", { name: /^starred$/i })).toHaveAttribute("aria-pressed", "false");
+    expect(within(screen.getByRole("list", { name: /tools/i })).getAllByRole("listitem")).toHaveLength(10);
+
+    await user.click(screen.getByRole("button", { name: /^star countdown timer$/i }));
+    await user.click(screen.getByRole("button", { name: /^starred$/i }));
+    expect(within(screen.getByRole("list", { name: /tools/i })).getAllByRole("listitem")).toHaveLength(1);
+
+    await user.click(screen.getByRole("button", { name: /^unstar countdown timer$/i }));
+    expect(screen.getByRole("heading", { name: /no starred tools yet/i })).toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: /tools/i })).not.toBeInTheDocument();
+  });
+
+  it("persists favorites across remounts without clearing theme preference", async () => {
+    const user = userEvent.setup();
+    const { unmount } = renderApp("/");
+
+    await user.click(screen.getByRole("button", { name: /use light theme/i }));
+    expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("light");
+
+    await user.click(screen.getByRole("button", { name: /^star countdown timer$/i }));
+    await user.click(screen.getByRole("button", { name: /^star json formatter & validator$/i }));
+    expect(window.localStorage.getItem(FAVORITES_STORAGE_KEY)).toContain("countdown-timer");
+    expect(window.localStorage.getItem(FAVORITES_STORAGE_KEY)).toContain("json-formatter-validator");
+    expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("light");
+
+    unmount();
+    renderApp("/");
+
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+    expect(screen.getByRole("button", { name: /^unstar countdown timer$/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /^unstar json formatter & validator$/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /^star stopwatch & split laps$/i })).toHaveAttribute("aria-pressed", "false");
+
+    await user.click(screen.getByRole("button", { name: /^starred$/i }));
+    expect(within(screen.getByRole("list", { name: /tools/i })).getAllByRole("listitem")).toHaveLength(2);
   });
 });
