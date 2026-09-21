@@ -1,13 +1,6 @@
 import { SiteChrome } from "@/components/SiteChrome";
 import { isEditableTarget } from "@/lib/isEditableTarget";
-import {
-  CATEGORY_FILTERS,
-  TOOL_CATALOG,
-  TOOL_COUNT,
-  filterCatalog,
-  type CatalogTool,
-  type CategoryFilter,
-} from "@/tools/catalog";
+import { CATEGORY_FILTERS, TOOL_CATALOG, TOOL_COUNT, filterCatalog, type CatalogTool, type CategoryFilter } from "@/tools/catalog";
 import { useEffect, useId, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -63,21 +56,17 @@ export function HomePage() {
             Precision tools for everyday focus.
           </h1>
           <p className="home-intro">Focused tools for everyday work. Open Countdown Timer when you need a clear Target Time display.</p>
-        </section>
 
-        <section className="tool-discovery" aria-label="Tool discovery">
-          <div className="tool-search">
+          <div className="tool-discovery" role="search" aria-label="Tool discovery">
             <label className="tool-search-label" htmlFor={searchId}>
               Search tools
             </label>
             <div className="tool-search-field">
-              <span className="tool-search-icon" aria-hidden="true">
-                ⌕
-              </span>
+              <SearchIcon />
               <input
                 ref={searchRef}
                 id={searchId}
-                type="search"
+                type="text"
                 role="searchbox"
                 className="tool-search-input"
                 placeholder={`Search ${TOOL_COUNT} tools by name, description, or tag...`}
@@ -91,24 +80,24 @@ export function HomePage() {
                 <kbd>K</kbd>
               </span>
             </div>
-          </div>
 
-          <div className="category-filters" role="group" aria-label="Filter by category">
-            {CATEGORY_FILTERS.map((filter) => {
-              const pressed = category === filter.id;
-              const label = filter.id === "all" ? `All (${TOOL_COUNT})` : filter.label;
-              return (
-                <button
-                  key={filter.id}
-                  type="button"
-                  className={pressed ? "category-pill category-pill--active" : "category-pill"}
-                  aria-pressed={pressed}
-                  onClick={() => setCategory(filter.id)}
-                >
-                  {label}
-                </button>
-              );
-            })}
+            <div className="category-filters" role="group" aria-label="Filter by category">
+              {CATEGORY_FILTERS.map((filter) => {
+                const pressed = category === filter.id;
+                const label = filter.id === "all" ? `All (${TOOL_COUNT})` : filter.label;
+                return (
+                  <button
+                    key={filter.id}
+                    type="button"
+                    className={pressed ? "category-pill category-pill--active" : "category-pill"}
+                    aria-pressed={pressed}
+                    onClick={() => setCategory(filter.id)}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </section>
 
@@ -126,7 +115,9 @@ export function HomePage() {
           {resultCount === 0 ? (
             <div className="tool-empty" role="status">
               <h3 className="tool-empty-title">No matching tools found</h3>
-              <p className="tool-empty-copy">Try searching for generic terms like &quot;time&quot;, &quot;format&quot;, &quot;encode&quot;, or &quot;date&quot;.</p>
+              <p className="tool-empty-copy">
+                Try searching for generic terms like &quot;time&quot;, &quot;format&quot;, &quot;encode&quot;, or &quot;date&quot;.
+              </p>
               <button type="button" className="tool-empty-clear" onClick={() => setQuery("")}>
                 Clear search query
               </button>
@@ -184,5 +175,25 @@ function ToolCard({ tool }: { tool: CatalogTool }) {
     <div className="tool-card tool-card--soon" aria-disabled="true">
       {body}
     </div>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg
+      className="tool-search-icon"
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
   );
 }
