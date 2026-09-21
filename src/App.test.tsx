@@ -96,10 +96,10 @@ describe("Tool Hub homepage", () => {
     expect(screen.queryByText(/featured core utility/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/pomodoro/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/set a target time to begin/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("searchbox", { name: /search tools/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /starred/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /documentation/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /keyboard shortcuts/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /keyboard shortcuts/i })).toBeInTheDocument();
 
     const tools = screen.getByRole("list", { name: /tools/i });
     const items = within(tools).getAllByRole("listitem");
@@ -180,5 +180,134 @@ describe("Tool Hub homepage", () => {
     unmount();
     renderApp("/countdown");
     expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+  });
+
+  it("searches tools by name, description, and tags across available and Coming soon entries", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+
+    const search = screen.getByRole("searchbox", { name: /search tools/i });
+    const tools = () => screen.getByRole("list", { name: /tools/i });
+
+    await user.type(search, "Markdown");
+    expect(within(tools()).getAllByRole("listitem")).toHaveLength(1);
+    expect(within(tools()).getByText(/markdown live preview/i)).toBeInTheDocument();
+    expect(screen.getByText(/^1 tools?$/i)).toBeInTheDocument();
+
+    await user.clear(search);
+    await user.type(search, "luminance");
+    expect(within(tools()).getByText(/color contrast & palette/i)).toBeInTheDocument();
+    expect(within(tools()).getAllByRole("listitem")).toHaveLength(1);
+
+    await user.clear(search);
+    await user.type(search, "fullscreen");
+    expect(within(tools()).getByText(/countdown timer/i)).toBeInTheDocument();
+    expect(within(tools()).getAllByRole("listitem")).toHaveLength(1);
+  });
+
+  it("intersects category filters with search and derives counts from matching tools", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+
+    expect(screen.getByRole("button", { name: /^all \(10\)$/i })).toHaveAttribute("aria-pressed", "true");
+
+    await user.click(screen.getByRole("button", { name: /time & productivity/i }));
+    expect(screen.getByRole("button", { name: /time & productivity/i })).toHaveAttribute("aria-pressed", "true");
+
+    const tools = () => screen.getByRole("list", { name: /tools/i });
+    const timeItems = within(tools()).getAllByRole("listitem");
+    expect(timeItems).toHaveLength(3);
+    expect(screen.getByText(/^3 tools$/i)).toBeInTheDocument();
+    expect(within(tools()).getByText(/countdown timer/i)).toBeInTheDocument();
+    expect(within(tools()).getByText(/stopwatch & split laps/i)).toBeInTheDocument();
+    expect(within(tools()).getByText(/unix timestamp converter/i)).toBeInTheDocument();
+
+    await user.type(screen.getByRole("searchbox", { name: /search tools/i }), "unix");
+    expect(within(tools()).getAllByRole("listitem")).toHaveLength(1);
+    expect(within(tools()).getByText(/unix timestamp converter/i)).toBeInTheDocument();
+    expect(screen.getByText(/^1 tools?$/i)).toBeInTheDocument();
+  });
+
+  it("shows no-results feedback and clears only the query while keeping the category", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+
+    await user.click(screen.getByRole("button", { name: /developer/i }));
+    await user.type(screen.getByRole("searchbox", { name: /search tools/i }), "zzzz-no-match");
+
+    expect(screen.queryByRole("list", { name: /tools/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /no matching tools found/i })).toBeInTheDocument();
+    expect(screen.getByText(/^0 tools$/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /clear search query/i }));
+
+    expect(screen.getByRole("searchbox", { name: /search tools/i })).toHaveValue("");
+    expect(screen.getByRole("button", { name: /developer/i })).toHaveAttribute("aria-pressed", "true");
+    expect(within(screen.getByRole("list", { name: /tools/i })).getAllByRole("listitem").length).toBeGreaterThan(0);
+    expect(within(screen.getByRole("list", { name: /tools/i })).getByText(/json formatter & validator/i)).toBeInTheDocument();
+  });
+
+  it("focuses search with slash, Command+K, and Control+K, and Escape clears and leaves search", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+
+    const search = screen.getByRole("searchbox", { name: /search tools/i });
+    expect(search).not.toHaveFocus();
+
+    await user.keyboard("/");
+    expect(search).toHaveFocus();
+
+    await user.type(search, "timer");
+    await user.keyboard("{Escape}");
+    expect(search).toHaveValue("");
+    expect(search).not.toHaveFocus();
+    expect(within(screen.getByRole("list", { name: /tools/i })).getAllByRole("listitem")).toHaveLength(10);
+
+    await user.keyboard("{Meta>}k{/Meta}");
+    expect(search).toHaveFocus();
+    await user.keyboard("{Escape}");
+
+    await user.keyboard("{Control>}k{/Control}");
+    expect(search).toHaveFocus();
+  });
+
+  it("does not steal focus from another editable control for search shortcuts", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+
+    const other = document.createElement("input");
+    other.setAttribute("aria-label", "Other field");
+    document.body.appendChild(other);
+    other.focus();
+    expect(other).toHaveFocus();
+
+    await user.keyboard("/");
+    expect(other).toHaveFocus();
+    expect(screen.getByRole("searchbox", { name: /search tools/i })).not.toHaveFocus();
+
+    await user.keyboard("{Meta>}k{/Meta}");
+    expect(other).toHaveFocus();
+
+    await user.keyboard("{Control>}k{/Control}");
+    expect(other).toHaveFocus();
+
+    other.remove();
+  });
+
+  it("lets keyboard users open and dismiss the Keyboard Shortcuts explanation and return focus", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+
+    const trigger = screen.getByRole("button", { name: /keyboard shortcuts/i });
+    await user.click(trigger);
+
+    const dialog = screen.getByRole("dialog", { name: /keyboard shortcuts/i });
+    expect(dialog).toBeInTheDocument();
+    expect(within(dialog).getByText(/focus search/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/clear and leave search/i)).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: /keyboard shortcuts/i })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 });

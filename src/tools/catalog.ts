@@ -106,3 +106,32 @@ export const TOOL_CATALOG: readonly CatalogTool[] = [
 ] as const;
 
 export const TOOL_COUNT = TOOL_CATALOG.length;
+
+export type CategoryFilter = "all" | ToolCategory;
+
+export const CATEGORY_FILTERS: readonly { id: CategoryFilter; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "time", label: "Time & Productivity" },
+  { id: "text", label: "Text & Markdown" },
+  { id: "converters", label: "Converters" },
+  { id: "developer", label: "Developer" },
+] as const;
+
+export function filterCatalog(
+  tools: readonly CatalogTool[],
+  options: { query: string; category: CategoryFilter },
+): CatalogTool[] {
+  const query = options.query.trim().toLowerCase();
+
+  return tools.filter((tool) => {
+    const matchesCategory = options.category === "all" || tool.categories.includes(options.category);
+    if (!matchesCategory) {
+      return false;
+    }
+    if (!query) {
+      return true;
+    }
+    const haystack = [tool.name, tool.description, ...tool.tags].join(" ").toLowerCase();
+    return haystack.includes(query);
+  });
+}
