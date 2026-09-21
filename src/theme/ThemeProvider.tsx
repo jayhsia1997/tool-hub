@@ -13,7 +13,11 @@ function applyAppearance(appearance: ThemeAppearance) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [preference, setPreference] = useState<ThemePreference>(() => loadThemePreference());
+  const [preference, setPreference] = useState<ThemePreference>(() => {
+    const initial = loadThemePreference();
+    applyAppearance(resolveAppearance(initial));
+    return initial;
+  });
   const [systemAppearance, setSystemAppearance] = useState<ThemeAppearance>(() =>
     resolveAppearance(null),
   );

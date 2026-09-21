@@ -145,6 +145,13 @@ describe("Tool Hub homepage", () => {
     expect(feedback).toHaveAttribute("href", "https://github.com/jayhsia1997/tool-hub/issues");
   });
 
+  it("follows system Light from the initial render before any manual choice", () => {
+    mockMatchMedia(false);
+    renderApp("/");
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+    expect(screen.getByRole("button", { name: /use dark theme/i })).toBeInTheDocument();
+  });
+
   it("follows the system theme until a manual choice is stored, then keeps that choice across routes and remounts", async () => {
     const user = userEvent.setup();
     const media = mockMatchMedia(true);

@@ -76,21 +76,11 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-}
-
-.site-icon-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.5rem;
   color: var(--text-secondary);
-  text-decoration: none;
 }
 
-.site-icon-link:hover {
-  background: var(--surface-raised);
+.site-header-actions a:hover,
+.site-header-actions button:hover {
   color: var(--text-primary);
 }
 

@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
-:root,
+:root {
+  --font-sans-family: "Geist", "Segoe UI", system-ui, sans-serif;
+  --font-sans: var(--font-sans-family);
+  --radius: 0.5rem;
+  font: 16px/1.5 var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 [data-theme="dark"] {
   --canvas: #111111;
   --surface-inset: #141414;
@@ -15,9 +25,6 @@
   --danger: #ba1a1a;
   --header-bg: color-mix(in srgb, var(--canvas) 90%, transparent);
   --selection-bg: color-mix(in srgb, var(--accent) 30%, transparent);
-
-  --font-sans-family: "Geist", "Segoe UI", system-ui, sans-serif;
-  --font-sans: var(--font-sans-family);
 
   --countdown-bg: var(--canvas);
   --countdown-fg: var(--text-primary);
@@ -51,15 +58,9 @@
   --destructive-foreground: #fafafa;
   --input: var(--border-subtle);
   --ring: color-mix(in srgb, var(--accent) 60%, transparent);
-  --radius: 0.5rem;
 
-  font: 16px/1.5 var(--font-sans);
   color: var(--text-primary);
   background: var(--canvas);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 [data-theme="light"] {
@@ -76,8 +77,28 @@
   --danger: #ba1a1a;
   --header-bg: color-mix(in srgb, var(--canvas) 90%, transparent);
   --selection-bg: color-mix(in srgb, var(--accent) 20%, transparent);
+
+  --countdown-bg: var(--canvas);
+  --countdown-fg: var(--text-primary);
+  --countdown-sans: var(--font-sans);
+  --countdown-digits: var(--font-sans);
   --countdown-track: color-mix(in srgb, var(--text-primary) 12%, transparent);
   --countdown-separator: color-mix(in srgb, var(--accent) 85%, var(--text-primary));
+
+  --text: var(--text-secondary);
+  --text-h: var(--text-primary);
+  --bg: var(--canvas);
+  --border: var(--border-subtle);
+  --surface: var(--surface-card);
+  --sans: var(--font-sans);
+  --mono: var(--font-sans);
+
+  --background: var(--canvas);
+  --foreground: var(--text-primary);
+  --card: var(--surface-card);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--text-primary);
   --primary: var(--text-primary);
   --primary-foreground: #f4f1ea;
   --secondary: var(--surface-raised);
@@ -85,8 +106,13 @@
   --muted: var(--surface-raised);
   --muted-foreground: var(--text-secondary);
   --accent-foreground: var(--canvas);
+  --destructive: var(--danger);
+  --destructive-foreground: #fafafa;
   --input: var(--border-subtle);
   --ring: color-mix(in srgb, var(--accent) 60%, transparent);
+
+  color: var(--text-primary);
+  background: var(--canvas);
 }
 
 @theme inline {

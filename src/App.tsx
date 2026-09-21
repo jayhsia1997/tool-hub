@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import { CountdownTimerPage } from "./CountdownTimerPage";
-import { HomePage } from "./HomePage";
-import { ThemeProvider } from "./theme/ThemeProvider";
+import { CountdownTimerPage } from "@/CountdownTimerPage";
+import { HomePage } from "@/HomePage";
+import { ThemeProvider } from "@/theme/ThemeProvider";
 
 export default function App() {
   return (

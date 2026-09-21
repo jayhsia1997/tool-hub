@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ToolHubLogo } from "@/components/ToolHubLogo";
+import { Button } from "@/components/ui/button";
 
 const GITHUB_URL = "https://github.com/jayhsia1997/tool-hub";
 
@@ -22,15 +23,11 @@ export function SiteChrome({ children }: SiteChromeProps) {
           </Link>
 
           <div className="site-header-actions">
-            <a
-              className="site-icon-link"
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="GitHub repository"
-            >
-              <GitHubIcon />
-            </a>
+            <Button variant="ghost" size="icon" asChild>
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer" aria-label="GitHub repository">
+                <GitHubIcon />
+              </a>
+            </Button>
             <ThemeToggle />
           </div>
         </div>
