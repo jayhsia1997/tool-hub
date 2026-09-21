@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ToolHubLogo } from "@/components/ToolHubLogo";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const GITHUB_URL = "https://github.com/jayhsia1997/tool-hub";
 
@@ -37,15 +37,8 @@ export function SiteChrome({ children }: SiteChromeProps) {
 
       <footer className="site-footer">
         <div className="site-footer-inner">
-          <p className="site-footer-copy">
-            © {new Date().getFullYear()} Tool Hub. Built for everyday utility.
-          </p>
-          <a
-            className="site-footer-link"
-            href="https://github.com/jayhsia1997/tool-hub/issues"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <p className="site-footer-copy">© {new Date().getFullYear()} Tool Hub. Built for everyday utility.</p>
+          <a className="site-footer-link" href="https://github.com/jayhsia1997/tool-hub/issues" target="_blank" rel="noreferrer">
             Feedback
           </a>
         </div>

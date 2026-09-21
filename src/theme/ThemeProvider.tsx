@@ -1,12 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ThemeContext } from "./themeContext";
-import {
-  loadThemePreference,
-  resolveAppearance,
-  saveThemePreference,
-  type ThemeAppearance,
-  type ThemePreference,
-} from "./themeStorage";
+import { loadThemePreference, resolveAppearance, saveThemePreference, type ThemeAppearance, type ThemePreference } from "./themeStorage";
 
 function applyAppearance(appearance: ThemeAppearance) {
   document.documentElement.setAttribute("data-theme", appearance);
@@ -18,9 +12,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     applyAppearance(resolveAppearance(initial));
     return initial;
   });
-  const [systemAppearance, setSystemAppearance] = useState<ThemeAppearance>(() =>
-    resolveAppearance(null),
-  );
+  const [systemAppearance, setSystemAppearance] = useState<ThemeAppearance>(() => resolveAppearance(null));
 
   const appearance = preference ?? systemAppearance;
 
@@ -45,9 +37,5 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setPreference(next);
   }
 
-  return (
-    <ThemeContext.Provider value={{ appearance, preference, setAppearance }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ appearance, preference, setAppearance }}>{children}</ThemeContext.Provider>;
 }

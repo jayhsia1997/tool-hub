@@ -1,8 +1,8 @@
 import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { THEME_STORAGE_KEY } from "./theme/themeStorage";
 import { renderApp } from "./test/renderApp";
+import { THEME_STORAGE_KEY } from "./theme/themeStorage";
 
 const COMING_SOON_NAMES = [
   "Stopwatch & Split Laps",

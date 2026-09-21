@@ -1,8 +1,8 @@
-import { Route, Routes } from "react-router-dom";
-import "./App.css";
 import { CountdownTimerPage } from "@/CountdownTimerPage";
 import { HomePage } from "@/HomePage";
 import { ThemeProvider } from "@/theme/ThemeProvider";
+import { Route, Routes } from "react-router-dom";
+import "./App.css";
 
 export default function App() {
   return (
