@@ -1,3 +1,4 @@
+import { SiteChrome } from "@/components/SiteChrome";
 import { CircleProgress } from "@/components/ui/circle-progress";
 import { SlidingNumber } from "@/components/ui/sliding-number";
 import { useEffect, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
@@ -251,88 +252,88 @@ export function CountdownTimerPage() {
   let workspace: ReactNode = null;
   if (!isProjecting) {
     workspace = (
-      <>
-        <p className="countdown-back">
-          <Link to="/">Back to Tool Hub</Link>
-        </p>
-        <h1>Countdown Timer</h1>
+      <SiteChrome>
+        <main className="countdown-page page-canvas">
+          <p className="countdown-back">
+            <Link to="/">Back to Tool Hub</Link>
+          </p>
+          <h1>Countdown Timer</h1>
 
-        <div className="countdown-workspace">
-          <form className="countdown-settings" onSubmit={handleApply}>
-            <div className="field">
-              <label htmlFor="countdown-title">Title</label>
-              <input
-                id="countdown-title"
-                name="title"
-                type="text"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                autoComplete="off"
-              />
-            </div>
+          <div className="countdown-workspace">
+            <form className="countdown-settings" onSubmit={handleApply}>
+              <div className="field">
+                <label htmlFor="countdown-title">Title</label>
+                <input
+                  id="countdown-title"
+                  name="title"
+                  type="text"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  autoComplete="off"
+                />
+              </div>
 
-            <div className="field">
-              <label htmlFor="countdown-target-time">Target Time</label>
-              <input
-                id="countdown-target-time"
-                name="targetTime"
-                type="time"
-                step={1}
-                value={targetTimeInput}
-                onChange={(event) => setTargetTimeInput(event.target.value)}
-              />
-            </div>
+              <div className="field">
+                <label htmlFor="countdown-target-time">Target Time</label>
+                <input
+                  id="countdown-target-time"
+                  name="targetTime"
+                  type="time"
+                  step={1}
+                  value={targetTimeInput}
+                  onChange={(event) => setTargetTimeInput(event.target.value)}
+                />
+              </div>
 
-            <div className="field">
-              <label htmlFor="countdown-completion-message">Completion Message</label>
-              <input
-                id="countdown-completion-message"
-                name="completionMessage"
-                type="text"
-                value={completionMessage}
-                onChange={(event) => setCompletionMessage(event.target.value)}
-                autoComplete="off"
-              />
-            </div>
+              <div className="field">
+                <label htmlFor="countdown-completion-message">Completion Message</label>
+                <input
+                  id="countdown-completion-message"
+                  name="completionMessage"
+                  type="text"
+                  value={completionMessage}
+                  onChange={(event) => setCompletionMessage(event.target.value)}
+                  autoComplete="off"
+                />
+              </div>
 
-            {error ? (
-              <p className="form-error" role="alert">
-                {error}
-              </p>
-            ) : null}
-
-            <div className="countdown-actions">
-              <button type="submit">Apply</button>
-              {applied ? (
-                <button type="button" onClick={handleCancel}>
-                  Cancel countdown
-                </button>
+              {error ? (
+                <p className="form-error" role="alert">
+                  {error}
+                </p>
               ) : null}
-            </div>
-          </form>
 
-          {activeReadout ? (
-            <section className="countdown-preview" aria-label="Countdown display">
-              {activeReadout}
-              <button type="button" className="countdown-preview-action" onClick={handleEnterFullscreen}>
-                Enter fullscreen
-              </button>
-            </section>
-          ) : (
-            <section className="countdown-preview countdown-preview--empty" aria-label="Countdown preview">
-              <p className="countdown-preview-empty">Set a target time to begin</p>
-            </section>
-          )}
-        </div>
-      </>
+              <div className="countdown-actions">
+                <button type="submit">Apply</button>
+                {applied ? (
+                  <button type="button" onClick={handleCancel}>
+                    Cancel countdown
+                  </button>
+                ) : null}
+              </div>
+            </form>
+
+            {activeReadout ? (
+              <section className="countdown-preview" aria-label="Countdown display">
+                {activeReadout}
+                <button type="button" className="countdown-preview-action" onClick={handleEnterFullscreen}>
+                  Enter fullscreen
+                </button>
+              </section>
+            ) : (
+              <section className="countdown-preview countdown-preview--empty" aria-label="Countdown preview">
+                <p className="countdown-preview-empty">Set a target time to begin</p>
+              </section>
+            )}
+          </div>
+        </main>
+      </SiteChrome>
     );
   }
 
-  return (
-    <main className={isProjecting ? "countdown-page projecting" : "countdown-page page-canvas"}>
-      {workspace}
-
-      {isProjecting && activeReadout ? (
+  if (isProjecting && activeReadout) {
+    return (
+      <main className="countdown-page projecting">
         <section className="countdown-display" aria-label="Countdown display">
           {activeReadout}
           {showReturnControl ? (
@@ -341,7 +342,9 @@ export function CountdownTimerPage() {
             </button>
           ) : null}
         </section>
-      ) : null}
-    </main>
-  );
+      </main>
+    );
+  }
+
+  return workspace;
 }
