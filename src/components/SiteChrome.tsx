@@ -1,7 +1,9 @@
+import { KeyboardShortcutsDialog } from "@/components/KeyboardShortcutsDialog";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ToolHubLogo } from "@/components/ToolHubLogo";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { useCallback, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const GITHUB_URL = "https://github.com/jayhsia1997/tool-hub";
 
@@ -10,6 +12,11 @@ type SiteChromeProps = {
 };
 
 export function SiteChrome({ children }: SiteChromeProps) {
+  const { pathname } = useLocation();
+  const showDirectoryShortcuts = pathname === "/";
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const closeShortcuts = useCallback(() => setShortcutsOpen(false), []);
+
   return (
     <div className="site-shell">
       <header className="site-header">
@@ -38,11 +45,20 @@ export function SiteChrome({ children }: SiteChromeProps) {
       <footer className="site-footer">
         <div className="site-footer-inner">
           <p className="site-footer-copy">© {new Date().getFullYear()} Tool Hub. Built for everyday utility.</p>
-          <a className="site-footer-link" href="https://github.com/jayhsia1997/tool-hub/issues" target="_blank" rel="noreferrer">
-            Feedback
-          </a>
+          <div className="site-footer-links">
+            {showDirectoryShortcuts ? (
+              <button type="button" className="site-footer-link" onClick={() => setShortcutsOpen(true)}>
+                Keyboard Shortcuts
+              </button>
+            ) : null}
+            <a className="site-footer-link" href="https://github.com/jayhsia1997/tool-hub/issues" target="_blank" rel="noreferrer">
+              Feedback
+            </a>
+          </div>
         </div>
       </footer>
+
+      {showDirectoryShortcuts ? <KeyboardShortcutsDialog open={shortcutsOpen} onClose={closeShortcuts} /> : null}
     </div>
   );
 }
