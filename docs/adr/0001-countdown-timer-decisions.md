@@ -1,6 +1,30 @@
-# Countdown Timer
+# Countdown Timer initial decisions
 
-Status: Scope confirmed through the user's request to publish a spec. Implementation has not started.
+Status: Accepted historical decision record, partially superseded by subsequent
+specifications.
+
+Tool Hub was designed as a static collection of focused tools, beginning with a
+general-purpose Countdown Timer for on-site projection. The initial decisions
+use today's local Target Time, browser-local persistence, and application-level
+behavioral tests with real-browser fullscreen verification, without requiring a
+backend or account system.
+
+## Scope and subsequent decisions
+
+The decisions below preserve the original record. The original statement that
+implementation had not started described the time of the design interview, not
+the current implementation status.
+
+- [Countdown Timer specification](../specs/countdown-timer.md) expands the initial
+  functional and testing contract.
+- [Visual redesign specification](../specs/visual-redesign.md) records subsequent
+  presentation decisions and explicitly preserves the implemented completion
+  behavior where the original description differs.
+- [Luxury homepage specification](../specs/luxury-homepage.md) supersedes the
+  single-card homepage and dark-only presentation constraints with the tool
+  directory and application-wide Dark/Light themes, including projection.
+- [Feature-based application architecture](./0002-feature-based-architecture.md)
+  defines the approved structural refactor while preserving current behavior.
 
 ## Confirmed decisions
 
